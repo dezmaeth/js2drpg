@@ -7,18 +7,11 @@ var player = {
 	money: 0,
 	speed: 0.5,
 	sprite: "images/hero.png",
-	enemy: false,
+	name: "@hero",
 	collidable: true,
 	controllable: true,
 	oncollition: function(item,moveIntent) {
-		if (item.enemy)
-		{
-			if (this.life <= 0) {
-				this.controllable = false;
-				//setInterval()
-			}
-		}
-
+		
 	},
 	refresh: function() {
 		

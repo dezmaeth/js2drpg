@@ -11,11 +11,11 @@ var monster_vertical = {
 	collidable: true,
 	controllable: false,
 	direction: "up",
-	oncollition: function(item) {
-		if (!item.enemy) {
-			item.life -= 5;
-			game.sendBackItem(item);
-			item.refresh();
+	oncollition: function(target) {
+		if (target.name == "@hero") {
+			target.life -= 5;
+			game.sendBackItem(target);
+			target.refresh();
 		}
 	},
 	refresh: function() {
