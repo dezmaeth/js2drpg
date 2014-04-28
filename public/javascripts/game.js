@@ -20,7 +20,7 @@ var game = function() {
 			for (var i in scene) {
 				var item = scene[i];
 				if (item.loaded) {
-					ctx.drawImage(item.sprite,item.x,item.y,item.w,item.h);
+					item.draw(ctx);
 				}
 			}
 		}
@@ -53,24 +53,35 @@ var game = function() {
 		{
 			var item = scene[i];
 			// IF COLLITION IS POSIBLE AND WITH NEXT ITEM
-			if (item.collidable && scene[i - 1] !== undefined && scene[i - 1].collidable) {
-				var next = scene[i - 1];
-				colliderWidth = item.w/2;
-				if (item.x <= (next.x + colliderWidth)
-					&& next.x <= (item.x + colliderWidth)
-					&& item.y <= (next.y + colliderWidth)
-					&& next.y <= (item.y + colliderWidth))
-				{
-				
-					reactTouch();
+			var collition = false;
+			for (var n in scene) {
+				var next = scene[n];
+				if (item.collidable && next.collidable && item != next) {
+					colliderWidth = item.w/2;
+					if (item.x <= (next.x + colliderWidth)
+						&& next.x <= (item.x + colliderWidth)
+						&& item.y <= (next.y + colliderWidth)
+						&& next.y <= (item.y + colliderWidth))
+					{
+						if (item.oncollition)
+							item.oncollition(next);
+						if (next.oncollition)
+							next.oncollition(item);
+						moveItem(item);
+					} else {
+					
+						moveItem(item);
+					}
 				} else {
-				
+					// NOTHING CAN HAPPEN, LETS DO THIS!
 					moveItem(item);
 				}
-			} else {
-				// NOTHING CAN HAPPEN, LETS DO THIS!
-				moveItem(item);
+
 			}
+
+
+			if (item.refresh !== undefined) item.refresh();
+			
 		}
 	}
 
@@ -126,6 +137,24 @@ var game = function() {
 	}
 
 
+	this.sendBackItem = function(item)
+	{
+		if (moveIntent.up) {
+			item.y += item.h;
+		}
+		if (moveIntent.down) {
+			item.y -= item.h;
+		}
+		if (moveIntent.left) {
+			item.x += item.w;
+		}
+		if (moveIntent.right) {
+			item.x -= item.w;
+		}
+	}
+
+	//this.stage = { w: canvas.width, h: canvas.height };
+
 	this.setCanvasSize = function(w,h)
 	{
 		canvas.width = w;
@@ -136,12 +165,21 @@ var game = function() {
 		scene.push(el);
 	}
 
+	this.cloneElement = function(el) {
+		var target = {};
+		for (var i in el) {
+			if (el.hasOwnProperty(i)) {
+		 		target[i] = el[i];
+			}
+		}
+		return target;
+	}
+
 	this.loadElement = function(el) {
 		var sprt = new Image();
 		sprt.onload = function() {
 			el.loaded = true;
 			el.sprite = this;
-		//	console.log("loaded sprite", this);
 		}
 		sprt.src = el.sprite;
 	}
