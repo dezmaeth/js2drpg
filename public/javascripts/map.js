@@ -1,4 +1,4 @@
-bg = {
+var bg = {
 	x: 0,
 	y: 0,
 	w: 512,
@@ -12,9 +12,10 @@ bg = {
 	}
 };
 
-/*var music = new Audio;
+var music = new Audio;
 music.src = "sounds/zeldamaintheme.mp3";
-music.play();*/
+music.play();
+
 game.setCanvasSize(512,480);
 game.loadElement(bg);
 game.loadElement(player);

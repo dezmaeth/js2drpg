@@ -1,9 +1,10 @@
 var game = function() {
-
-	var now, then, scene, canvas, ctx, keysDown, paused,moveIntent;
+	var gameInterval, now, then, scene, canvas, ctx, keysDown, paused,moveIntent;
+	var gameSpeed = 120;
 
 	var setKeysListeners = function() {
 		addEventListener("keydown", function (e) {
+			//console.log("key", e.keyCode);
 			keysDown[e.keyCode] = true;
 		}, false);
 
@@ -43,6 +44,10 @@ var game = function() {
 			if (moveIntent.right) {
 				item.x += item.speed;
 			}
+
+			if (moveIntent.action) {
+				item.action()
+			}
 		}
 	}
 
@@ -57,11 +62,10 @@ var game = function() {
 			for (var n in scene) {
 				var next = scene[n];
 				if (item.collidable && next.collidable && item != next) {
-					colliderWidth = item.w/2;
-					if (item.x <= (next.x + colliderWidth)
-						&& next.x <= (item.x + colliderWidth)
-						&& item.y <= (next.y + colliderWidth)
-						&& next.y <= (item.y + colliderWidth))
+					if (item.x <= (next.x + item.w)
+						&& next.x <= (item.x + next.w)
+						&& item.y <= (next.y + item.h)
+						&& next.y <= (item.y + next.h))
 					{
 						if (item.oncollition)
 							item.oncollition(next);
@@ -109,19 +113,26 @@ var game = function() {
 			move.right = true;
 		}
 
+		if (32 in keysDown) {
+			move.action = true;
+		}
+
 		moveIntent = move;
 		moveAll();
 	}
 
 
-	var update = function() {
-		now = Date.now();
+	var gameLoop = function() {
+	 	now = Date.now();
+		then = now;
 		var delta = now - then;
 		loop(delta / 1000);
+	}
+
+	var renderLoop = function() {
 		render();
-		then = now;
 		if (!paused)
-			requestAnimationFrame(update);
+			requestAnimationFrame(renderLoop);
 	}
 
 
@@ -186,10 +197,12 @@ var game = function() {
 
 	this.stop = function() {
 		paused = true;
+		clearInterval(gameInterval);
 	}
 	this.start = function () {
 		paused = false;
-		update();
+		renderLoop();
+		gameInterval = setInterval(gameLoop, 1000/ gameSpeed);
 	}
 
 	__init__();

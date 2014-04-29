@@ -4,7 +4,7 @@ var monster_vertical = {
 	x : 250,
 	y : 300,
 	life: 100,
-	enemy: true,
+	name: "@monster",
 	damage: 5,
 	speed: 2,
 	sprite: "images/monster.png",
@@ -19,42 +19,15 @@ var monster_vertical = {
 		}
 	},
 	refresh: function() {
-		switch(this.direction)
-		{
-			case "up":
-				if (this.y > 100)
-					this.y -= this.speed;
-				else 
-					this.direction = "down";
-			break;
-
-			case "down":
-				if (this.y < 300)
-					this.y += this.speed;
-				else 
-					this.direction = "up";
-			break;
-
-			case "left":
-
-			break;
-
-			case "right":
-
-			break;
-		}
-
-		/*
-		if (this.y > 100) {
-			this.y -= this.speed;
-		}
-
-		if (this.y < 100) {
-			this.y += this.speed;
-		}*/
+		
 	},
 	draw: function(ctx) {
+
 		ctx.drawImage(this.sprite,this.x,this.y,this.w,this.h);
+		ctx.beginPath();
+		ctx.strokeStyle="red";
+		ctx.rect(this.x,this.y,this.w,this.h);
+		ctx.stroke();
 	},
 	pickable: false,
 	loaded : false

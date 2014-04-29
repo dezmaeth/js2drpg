@@ -10,6 +10,10 @@ var player = {
 	name: "@hero",
 	collidable: true,
 	controllable: true,
+	action : function()
+	{
+		console.error("ACTION!1");
+	},
 	oncollition: function(item,moveIntent) {
 		
 	},
@@ -18,6 +22,10 @@ var player = {
 	},
 	draw: function(ctx) {
 		ctx.drawImage(this.sprite,this.x,this.y,this.w,this.h);
+		ctx.beginPath();
+		ctx.strokeStyle="blue";
+		ctx.rect(this.x,this.y,this.w,this.h);
+		ctx.stroke();
 	},
 	loaded : false
 };
