@@ -12,9 +12,12 @@ var bg = {
 	}
 };
 
-var music = new Audio;
+player.x =50;
+player.y =50;
+
+/*var music = new Audio;
 music.src = "sounds/zeldamaintheme.mp3";
-music.play();
+music.play();*/
 
 game.setCanvasSize(512,480);
 game.loadElement(bg);

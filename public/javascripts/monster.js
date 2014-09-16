@@ -15,7 +15,8 @@ var monster_vertical = {
 		if (target.name == "@hero") {
 			target.life -= 5;
 			game.sendBackItem(target);
-			target.refresh();
+			target.animations.hit();
+		//	target.refresh();
 		}
 	},
 	refresh: function() {
