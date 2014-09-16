@@ -1,6 +1,7 @@
 var game = function() {
 	var gameInterval, now, then, scene, canvas, ctx, keysDown, paused,moveIntent;
-	var gameSpeed = 120;
+	this.animation = true;
+	this.gameSpeed = 60;
 
 	var setKeysListeners = function() {
 		addEventListener("keydown", function (e) {
@@ -11,21 +12,21 @@ var game = function() {
 		addEventListener("keyup", function (e) {
 			delete keysDown[e.keyCode];
 		}, false);
-	}
-
-
+	};
 
 	var render = function() {
 		ctx.clearRect(0,0,canvas.width,canvas.height);
-		if (scene.length > 0) {		
+		if (scene.length > 0) {
+
 			for (var i in scene) {
 				var item = scene[i];
 				if (item.loaded) {
 					item.draw(ctx);
 				}
 			}
+
 		}
-	}
+	};
 
 
 	var moveItem = function(item)
@@ -34,22 +35,26 @@ var game = function() {
 
 			if (moveIntent.up) {
 				item.y -= item.speed;
+				item.animations.up();
 			}
 			if (moveIntent.down) {
 				item.y += item.speed;
+				item.animations.down();
 			}
 			if (moveIntent.left) {
 				item.x -= item.speed;
+				item.animations.left();
 			}
 			if (moveIntent.right) {
 				item.x += item.speed;
+				item.animations.right();
 			}
 
 			if (moveIntent.action) {
-				item.action()
+				item.action();
 			}
 		}
-	}
+	};
 
 	var moveAll = function()
 	{
@@ -62,10 +67,7 @@ var game = function() {
 			for (var n in scene) {
 				var next = scene[n];
 				if (item.collidable && next.collidable && item != next) {
-					if (item.x <= (next.x + item.w)
-						&& next.x <= (item.x + next.w)
-						&& item.y <= (next.y + item.h)
-						&& next.y <= (item.y + next.h))
+					if (item.x <= (next.x + item.w)	&& next.x <= (item.x + next.w) && item.y <= (next.y + item.h) && next.y <= (item.y + next.h))
 					{
 						if (item.oncollition)
 							item.oncollition(next);
@@ -87,7 +89,7 @@ var game = function() {
 			if (item.refresh !== undefined) item.refresh();
 			
 		}
-	}
+	};
 
 	var loop = function(mod) {
 		var move = {
@@ -119,50 +121,50 @@ var game = function() {
 
 		moveIntent = move;
 		moveAll();
-	}
+	};
 
 
 	var gameLoop = function() {
-	 	now = Date.now();
+		now = Date.now();
 		then = now;
 		var delta = now - then;
 		loop(delta / 1000);
-	}
+	};
 
 	var renderLoop = function() {
 		render();
 		if (!paused)
 			requestAnimationFrame(renderLoop);
-	}
+	};
 
 
 	var __init__ = function() {
-		scene = new Array();
-		keysDown = new Array();
+		scene = [];
+		keysDown = [];
 
 		canvas = document.createElement("canvas");
 		ctx = canvas.getContext("2d");
 		document.body.appendChild(canvas);
 
 		setKeysListeners();
-	}
+	};
 
 
 	this.sendBackItem = function(item)
 	{
 		if (moveIntent.up) {
-			item.y += item.h;
+			item.y += item.h/2;
 		}
 		if (moveIntent.down) {
-			item.y -= item.h;
+			item.y -= item.h/2;
 		}
 		if (moveIntent.left) {
-			item.x += item.w;
+			item.x += item.w/2;
 		}
 		if (moveIntent.right) {
-			item.x -= item.w;
+			item.x -= item.w/2;
 		}
-	}
+	};
 
 	//this.stage = { w: canvas.width, h: canvas.height };
 
@@ -170,11 +172,11 @@ var game = function() {
 	{
 		canvas.width = w;
 		canvas.height = h;
-	}
+	};
 	
 	this.addToScene = function(el) {
 		scene.push(el);
-	}
+	};
 
 	this.cloneElement = function(el) {
 		var target = {};
@@ -184,26 +186,26 @@ var game = function() {
 			}
 		}
 		return target;
-	}
+	};
 
 	this.loadElement = function(el) {
 		var sprt = new Image();
 		sprt.onload = function() {
 			el.loaded = true;
 			el.sprite = this;
-		}
+		};
 		sprt.src = el.sprite;
-	}
+	};
 
 	this.stop = function() {
 		paused = true;
 		clearInterval(gameInterval);
-	}
+	};
 	this.start = function () {
 		paused = false;
 		renderLoop();
-		gameInterval = setInterval(gameLoop, 1000/ gameSpeed);
-	}
+		gameInterval = setInterval(gameLoop, 1000/ this.gameSpeed);
+	};
 
 	__init__();
 };
