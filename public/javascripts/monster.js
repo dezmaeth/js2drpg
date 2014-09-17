@@ -10,7 +10,6 @@ var monster_vertical = {
 	sprite: "images/monster.png",
 	collidable: true,
 	controllable: false,
-	direction: "up",
 	oncollition: function(target) {
 		if (target.name == "@hero") {
 			target.life -= 5;

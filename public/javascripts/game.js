@@ -34,19 +34,23 @@ var game = function() {
 		if (item.controllable) {
 
 			if (moveIntent.up) {
-				item.y -= item.speed;
+				if ((item.y - item.speed) > 0)
+					item.y -= item.speed;
 				item.animations.up();
 			}
 			if (moveIntent.down) {
-				item.y += item.speed;
+				if ((item.y + item.speed + item.h) < canvas.height)
+					item.y += item.speed;
 				item.animations.down();
 			}
 			if (moveIntent.left) {
-				item.x -= item.speed;
+				if ((item.x - item.speed) > 0)
+					item.x -= item.speed;
 				item.animations.left();
 			}
 			if (moveIntent.right) {
-				item.x += item.speed;
+				if ((item.x + item.speed + item.w) < canvas.width)
+					item.x += item.speed;
 				item.animations.right();
 			}
 
@@ -165,8 +169,6 @@ var game = function() {
 			item.x -= item.w/2;
 		}
 	};
-
-	//this.stage = { w: canvas.width, h: canvas.height };
 
 	this.setCanvasSize = function(w,h)
 	{

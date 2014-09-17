@@ -12,6 +12,24 @@ var bg = {
 	}
 };
 
+
+var house = { 
+	x: 100,
+	y: 100,
+	w: 130,
+	h: 150,
+	sprite: "http://th01.deviantart.net/fs70/150/f/2012/111/7/b/house_sprite_by_chasz_manequin-d4x2gm4.png",
+	loaded: false,
+	collidable: true,
+	controllable: false,
+	oncollition: function(target) {
+			
+	},
+	draw: function(ctx) {
+		ctx.drawImage(this.sprite,this.x,this.y,this.w,this.h);
+	}
+};
+
 player.x =50;
 player.y =50;
 
@@ -21,6 +39,7 @@ music.play();*/
 
 game.setCanvasSize(512,480);
 game.loadElement(bg);
+game.loadElement(house);
 game.loadElement(player);
 game.loadElement(monster_vertical);
 
@@ -32,5 +51,6 @@ game.loadElement(monster_vertical_2);
 game.addToScene(bg);
 game.addToScene(monster_vertical);
 game.addToScene(monster_vertical_2);
+game.addToScene(house);
 game.addToScene(player);
 game.start();

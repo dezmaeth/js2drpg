@@ -22,9 +22,6 @@ var player = {
 	{
 		console.error("ACTION!1");
 	},
-	oncollition: function(item,moveIntent) {
-		
-	},
 	draw: function(ctx) {
 		var time = (new Date().getTime() / 1000);
 		if ((this.lt + this.animationSpeed < time) && game.animation) {
