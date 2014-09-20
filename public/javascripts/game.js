@@ -1,7 +1,8 @@
 var game = function() {
-	var gameInterval, now, then, scene, canvas, ctx, keysDown, paused,moveIntent;
+	var gameInterval, now, then, scene, keysDown, paused,moveIntent,canvas;
+	this.ctx;
 	this.animation = true;
-	this.gameSpeed = 60;
+	this.gameSpeed = 30;
 
 	var setKeysListeners = function() {
 		addEventListener("keydown", function (e) {
@@ -15,13 +16,13 @@ var game = function() {
 	};
 
 	var render = function() {
-		ctx.clearRect(0,0,canvas.width,canvas.height);
+		this.ctx.clearRect(0,0,canvas.width,canvas.height);
 		if (scene.length > 0) {
 
 			for (var i in scene) {
 				var item = scene[i];
 				if (item.loaded) {
-					item.draw(ctx);
+					item.draw(this.ctx);
 				}
 			}
 
@@ -147,7 +148,7 @@ var game = function() {
 		keysDown = [];
 
 		canvas = document.createElement("canvas");
-		ctx = canvas.getContext("2d");
+		this.ctx = canvas.getContext("2d");
 		document.body.appendChild(canvas);
 
 		setKeysListeners();
@@ -198,6 +199,55 @@ var game = function() {
 		};
 		sprt.src = el.sprite;
 	};
+	//not good enough , fix this!
+	var getTileCoords = function(tileNum,image,tileW, tileH) { 
+	   totalX = image.width / tileW; 
+	   totalY = image.height / tileH;
+	   num = totalX / tileNum;
+	   row = 1;
+	   while (num < 1) { 
+	       row++;
+	       num = (totalX * row) / tileNum;
+	   }
+
+	   column = tileNum - (totalX * row) + totalX;
+	   return { row : row , column : column }
+	}
+
+
+	this.drawTileMap = function(mapdata,layer,tileW,tileH) { 
+		var layer = (layer !== undefined)? layer : 0;
+		tileImage = new Image;
+		tileImage.src = mapdata.tilesets[layer].image;
+		tileImage.onload = function() { 
+			var currentX = 0;
+			var currentY = 0;
+			var currentTile = 0;
+			for (var i in mapdata.layers[layer].data) {
+				var coord = getTileCoords(mapdata.layers[layer].data[i],tileImage,tileW,tileH);
+				if (currentTile >= 20) {
+					currentX = 0;
+					currentY += tileH;
+					currentTile = 0;
+				}
+
+				ctx.drawImage(	tileImage,
+							(coord.column * tileW),
+							coord.row * tileH,
+							tileW,
+							tileH,
+							currentX,
+							currentY,
+							tileW,
+							tileH);
+				
+				console.log("num",currentTile,"x:",currentX,"y:",currentY);
+
+				currentTile++;
+				currentX += tileW;
+			}
+		}
+	}
 
 	this.stop = function() {
 		paused = true;
