@@ -199,20 +199,27 @@ var game = function() {
 		};
 		sprt.src = el.sprite;
 	};
+
+
 	//not good enough , fix this!
-	var getTileCoords = function(tileNum,image,tileW, tileH) { 
-	   totalX = image.width / tileW; 
-	   totalY = image.height / tileH;
-	   num = totalX / tileNum;
-	   row = 1;
-	   while (num < 1) { 
+	var getTilePosition = function (tileNum,image,tileW,tileH) { 
+	   var filas = image.height / tileH;
+	   var columas = image.width / tileW; 
+	   
+	   
+	   /*var aux = totalX / tileNum;
+	   var row = 1;
+	   while (aux < 1) {
 	       row++;
-	       num = (totalX * row) / tileNum;
+	       aux = (totalX * row) / tileNum;
 	   }
 
 	   column = tileNum - (totalX * row) + totalX;
-	   return { row : row , column : column }
-	}
+
+	   console.log("num",tileNum,"column:",row,"row:",column);
+
+	   return { row : row , column : column };*/
+	};
 
 
 	this.drawTileMap = function(mapdata,layer,tileW,tileH) { 
@@ -224,14 +231,14 @@ var game = function() {
 			var currentY = 0;
 			var currentTile = 0;
 			for (var i in mapdata.layers[layer].data) {
-				var coord = getTileCoords(mapdata.layers[layer].data[i],tileImage,tileW,tileH);
+				var coord = getTilePosition(mapdata.layers[layer].data[i],tileImage,tileW,tileH);
 				if (currentTile >= 20) {
 					currentX = 0;
 					currentY += tileH;
 					currentTile = 0;
 				}
 
-				ctx.drawImage(	tileImage,
+				ctx.drawImage(tileImage,
 							(coord.column * tileW),
 							coord.row * tileH,
 							tileW,
@@ -240,14 +247,11 @@ var game = function() {
 							currentY,
 							tileW,
 							tileH);
-				
-				console.log("num",currentTile,"x:",currentX,"y:",currentY);
-
 				currentTile++;
 				currentX += tileW;
 			}
 		}
-	}
+	};
 
 	this.stop = function() {
 		paused = true;
