@@ -12,7 +12,7 @@ var player = {
 	offsetY:0,
 	lt: (new Date().getTime() / 1000),
 	money: 0,
-	speed: 0.5,
+	speed: 5,
 	sprite: "images/player.png",
 	name: "@hero",
 	collidable: true,

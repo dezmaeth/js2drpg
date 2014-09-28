@@ -1,12 +1,14 @@
 var game = function() {
-	var gameInterval, now, then, scene, keysDown, paused,moveIntent,canvas;
-	this.ctx;
+	var gameInterval,currentMap, now, then, scene, keysDown, paused,moveIntent,canvas,ctx;
 	this.animation = true;
 	this.gameSpeed = 30;
+	this.ctx = null;
+	this.loadMap = function(map) {
+		currentMap = map;
+	};
 
 	var setKeysListeners = function() {
 		addEventListener("keydown", function (e) {
-			//console.log("key", e.keyCode);
 			keysDown[e.keyCode] = true;
 		}, false);
 
@@ -16,7 +18,8 @@ var game = function() {
 	};
 
 	var render = function() {
-		this.ctx.clearRect(0,0,canvas.width,canvas.height);
+		//this.ctx.clearRect(0,0,canvas.width,canvas.height);
+		drawTiles();
 		if (scene.length > 0) {
 
 			for (var i in scene) {
@@ -143,18 +146,6 @@ var game = function() {
 	};
 
 
-	var __init__ = function() {
-		scene = [];
-		keysDown = [];
-
-		canvas = document.createElement("canvas");
-		this.ctx = canvas.getContext("2d");
-		document.body.appendChild(canvas);
-
-		setKeysListeners();
-	};
-
-
 	this.sendBackItem = function(item)
 	{
 		if (moveIntent.up) {
@@ -185,7 +176,7 @@ var game = function() {
 		var target = {};
 		for (var i in el) {
 			if (el.hasOwnProperty(i)) {
-		 		target[i] = el[i];
+				target[i] = el[i];
 			}
 		}
 		return target;
@@ -201,56 +192,50 @@ var game = function() {
 	};
 
 
-	//not good enough , fix this!
-	var getTilePosition = function (tileNum,image,tileW,tileH) { 
-	   var filas = image.height / tileH;
-	   var columas = image.width / tileW; 
-	   
-	   
-	   /*var aux = totalX / tileNum;
-	   var row = 1;
-	   while (aux < 1) {
-	       row++;
-	       aux = (totalX * row) / tileNum;
-	   }
+	var getTilePosition = function (tileGid,image,tileW,tileH) {
+		var totalY = image.height / tileH;
+		var totalX = image.width / tileW;
 
-	   column = tileNum - (totalX * row) + totalX;
+		var y = Math.ceil(tileGid/totalX)-1;
+		var x = tileGid - (totalX * y) - 1;
 
-	   console.log("num",tileNum,"column:",row,"row:",column);
-
-	   return { row : row , column : column };*/
+		return {x: x, y: y};
 	};
 
+	var drawTiles = function() {
+		var layersImages = [];
+		var layer = 0;
+		//for (var layer in TileMaps[currentMap].layers) {
+			layersImages[layer] = new Image();
+			layersImages[layer].src = TileMaps[currentMap].tilesets[layer].image;
+			layersImages[layer].onload = function() {
+				var currentX = 0;
+				var currentY = 0;
+				var currentTile = 0;
+				var tilewidth = TileMaps[currentMap].tilesets[layer].tilewidth;
+				var tileheight = TileMaps[currentMap].tilesets[layer].tileheight;
+				for (var gid in TileMaps[currentMap].layers[layer].data) {
+					var coord = getTilePosition(TileMaps[currentMap].layers[layer].data[gid],layersImages[layer],tilewidth,tileheight);
+					if (currentTile >= TileMaps[currentMap].layers[layer].width) {
+						currentX = 0;
+						currentY += tileheight;
+						currentTile = 0;
+					}
 
-	this.drawTileMap = function(mapdata,layer,tileW,tileH) { 
-		var layer = (layer !== undefined)? layer : 0;
-		tileImage = new Image;
-		tileImage.src = mapdata.tilesets[layer].image;
-		tileImage.onload = function() { 
-			var currentX = 0;
-			var currentY = 0;
-			var currentTile = 0;
-			for (var i in mapdata.layers[layer].data) {
-				var coord = getTilePosition(mapdata.layers[layer].data[i],tileImage,tileW,tileH);
-				if (currentTile >= 20) {
-					currentX = 0;
-					currentY += tileH;
-					currentTile = 0;
+					ctx.drawImage(layersImages[layer],
+								(coord.x * tilewidth),
+								coord.y * tileheight,
+								tilewidth,
+								tileheight,
+								currentX,
+								currentY,
+								tilewidth,
+								tileheight);
+					currentTile++;
+					currentX += tilewidth;
 				}
-
-				ctx.drawImage(tileImage,
-							(coord.column * tileW),
-							coord.row * tileH,
-							tileW,
-							tileH,
-							currentX,
-							currentY,
-							tileW,
-							tileH);
-				currentTile++;
-				currentX += tileW;
-			}
-		}
+			};
+		//}
 	};
 
 	this.stop = function() {
@@ -259,10 +244,23 @@ var game = function() {
 	};
 	this.start = function () {
 		paused = false;
+		
 		renderLoop();
 		gameInterval = setInterval(gameLoop, 1000/ this.gameSpeed);
 	};
 
+	var __init__ = function() {
+		scene = [];
+		keysDown = [];
+
+		canvas = document.createElement("canvas");
+		ctx = canvas.getContext("2d");
+		this.ctx = ctx;
+		document.body.appendChild(canvas);
+
+		setKeysListeners();
+	};
+	
 	__init__();
 };
 
