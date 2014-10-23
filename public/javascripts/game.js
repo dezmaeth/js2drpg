@@ -1,5 +1,13 @@
 var game = function() {
-	var gameInterval,currentMap, now, then, scene, keysDown, paused,moveIntent,canvas,ctx;
+	var gameInterval, now, then, scene, keysDown, paused,moveIntent,canvas,ctx;
+	var currentMap = "map";
+	// tiles
+	var tilesReady = false,
+		layersImages = [],
+		layersLoaded = 0,
+		layersAmount = 0;
+
+
 	this.animation = true;
 	this.gameSpeed = 30;
 	this.ctx = null;
@@ -19,17 +27,21 @@ var game = function() {
 
 	var render = function() {
 		//this.ctx.clearRect(0,0,canvas.width,canvas.height);
-		drawTiles();
-		if (scene.length > 0) {
-
-			for (var i in scene) {
-				var item = scene[i];
-				if (item.loaded) {
-					item.draw(this.ctx);
+		if (tilesReady) {
+			drawTiles(0);
+			drawTiles(1);
+			if (scene.length > 0) {
+				for (var i in scene) {
+					var item = scene[i];
+					if (item.loaded) {
+						item.draw(this.ctx);
+					}
 				}
 			}
-
+			drawTiles(2);
 		}
+			
+		
 	};
 
 
@@ -202,40 +214,33 @@ var game = function() {
 		return {x: x, y: y};
 	};
 
-	var drawTiles = function() {
-		var layersImages = [];
-		var layer = 0;
-		//for (var layer in TileMaps[currentMap].layers) {
-			layersImages[layer] = new Image();
-			layersImages[layer].src = TileMaps[currentMap].tilesets[layer].image;
-			layersImages[layer].onload = function() {
-				var currentX = 0;
-				var currentY = 0;
-				var currentTile = 0;
-				var tilewidth = TileMaps[currentMap].tilesets[layer].tilewidth;
-				var tileheight = TileMaps[currentMap].tilesets[layer].tileheight;
-				for (var gid in TileMaps[currentMap].layers[layer].data) {
-					var coord = getTilePosition(TileMaps[currentMap].layers[layer].data[gid],layersImages[layer],tilewidth,tileheight);
-					if (currentTile >= TileMaps[currentMap].layers[layer].width) {
-						currentX = 0;
-						currentY += tileheight;
-						currentTile = 0;
-					}
-
-					ctx.drawImage(layersImages[layer],
-								(coord.x * tilewidth),
-								coord.y * tileheight,
-								tilewidth,
-								tileheight,
-								currentX,
-								currentY,
-								tilewidth,
-								tileheight);
-					currentTile++;
-					currentX += tilewidth;
-				}
-			};
-		//}
+	var drawTiles = function(layer) {
+		var currentX = 0;
+		var currentY = 0;
+		var currentTile = 0;
+		var firstGid = TileMaps[currentMap].tilesets[layer].firstgid - 1;
+		var tilewidth = TileMaps[currentMap].tilesets[layer].tilewidth;
+		var tileheight = TileMaps[currentMap].tilesets[layer].tileheight;
+		for (var gid in TileMaps[currentMap].layers[layer].data) {
+			var coord = getTilePosition(TileMaps[currentMap].layers[layer].data[gid] - firstGid,layersImages[layer],tilewidth,tileheight);
+			
+			if (currentTile >= TileMaps[currentMap].layers[layer].width) {
+				currentX = 0;
+				currentY += tileheight;
+				currentTile = 0;
+			}
+			ctx.drawImage(layersImages[layer],
+						(coord.x * tilewidth),
+						coord.y * tileheight,
+						tilewidth,
+						tileheight,
+						currentX,
+						currentY,
+						tilewidth,
+						tileheight);
+			currentTile++;
+			currentX += tilewidth;
+		}
 	};
 
 	this.stop = function() {
@@ -249,6 +254,24 @@ var game = function() {
 		gameInterval = setInterval(gameLoop, 1000/ this.gameSpeed);
 	};
 
+
+	var getTileSet = function()
+	{
+		
+		layersAmount = TileMaps[currentMap].layers.length;
+		layersLoaded = 0;
+		for (var layer in TileMaps[currentMap].layers) {
+			layersImages[layer] = new Image();
+			layersImages[layer].src = TileMaps[currentMap].tilesets[layer].image;
+			layersImages[layer].onload = function() {
+				layersLoaded++;
+				if (layersLoaded >= layersAmount) {
+					tilesReady = true;
+				}
+			};
+		}
+	};
+
 	var __init__ = function() {
 		scene = [];
 		keysDown = [];
@@ -257,6 +280,7 @@ var game = function() {
 		ctx = canvas.getContext("2d");
 		this.ctx = ctx;
 		document.body.appendChild(canvas);
+		getTileSet();
 
 		setKeysListeners();
 	};
